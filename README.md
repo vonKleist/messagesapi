@@ -15,9 +15,10 @@ All request for _message_ resources required user authorization, provided by acc
   xMTgzLCJqdGkiOiJ2YjY0RFd2TUpZbnlETDZnIiwic3ViIjoxfQ.
   _3g85ZyzwZnbJLMSO7tG6mrfgMfeena4_NwCQWS8UDI`
   
-**Methods**
+**Methods:**
 
 **Sign up new user:**
+
 Creates new user and return access token
 
 POST /user/signup
@@ -39,6 +40,7 @@ _Response:_
  
  
 **User login:**
+
 Check user password and return access token
 
 POST /user/login
@@ -58,6 +60,7 @@ _Response:_
  
  
 **Send message:**
+
 Send message to another user
 
 POST /message
@@ -72,6 +75,7 @@ _Params:_
 
  
 **Get messages:**
+
 Get users messages.
 Type - filter by receiver or sender
 Status- filter by delivering status (sent - both)
@@ -88,6 +92,7 @@ _Params:_
 
  
 **Delete message:**
+
 Delete user messages
 
 DELETE /message/{id}
