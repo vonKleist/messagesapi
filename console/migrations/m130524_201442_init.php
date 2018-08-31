@@ -28,9 +28,9 @@ class m130524_201442_init extends Migration
             'receiverId' => $this->integer()->notNull(),
             'title' => $this->string()->notNull(),
             'text' => $this->text()->notNull(),
-            'isReceived' => $this->tinyInteger()->notNull()->unsigned(),
+            'isReceived' => $this->tinyInteger()->notNull()->unsigned()->defaultValue(0),
 
-            'isDeleted' => $this->tinyInteger()->notNull()->unsigned(),
+            'isDeleted' => $this->tinyInteger()->notNull()->unsigned()->defaultValue(0),
             'createdAt' => $this->integer()->notNull(),
             'updatedAt' => $this->integer()->notNull(),
         ], $tableOptions);

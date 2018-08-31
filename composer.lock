@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "630d5f1d19e73b0163f900453171fba5",
+    "content-hash": "70dd292db275e1df9cd86f19ffd78913",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -168,6 +168,49 @@
             "time": "2017-07-16T21:13:23+00:00"
         },
         {
+            "name": "damirka/yii2-jwt",
+            "version": "v0.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/damirka/yii2-jwt.git",
+                "reference": "4a2251b2ae0bee44e14b826d8c91a3a24ae59691"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/damirka/yii2-jwt/zipball/4a2251b2ae0bee44e14b826d8c91a3a24ae59691",
+                "reference": "4a2251b2ae0bee44e14b826d8c91a3a24ae59691",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "~3.0.0",
+                "yiisoft/yii2": "~2.0.0"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "damirka\\JWT\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Damir Shamanaev",
+                    "email": "damirka.ru@gmail.com",
+                    "homepage": "https://github.com/damirka"
+                }
+            ],
+            "description": "Trait for easier JWT integration",
+            "homepage": "https://github.com/damirka/yii2-jwt",
+            "keywords": [
+                "jwt",
+                "yii"
+            ],
+            "time": "2016-08-16T08:29:41+00:00"
+        },
+        {
             "name": "doctrine/lexer",
             "version": "v1.0.1",
             "source": {
@@ -326,6 +369,49 @@
             "time": "2018-02-23T01:58:20+00:00"
         },
         {
+            "name": "firebase/php-jwt",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/firebase/php-jwt.git",
+                "reference": "fa8a06e96526eb7c0eeaa47e4f39be59d21f16e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/fa8a06e96526eb7c0eeaa47e4f39be59d21f16e1",
+                "reference": "fa8a06e96526eb7c0eeaa47e4f39be59d21f16e1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firebase\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Neuman Vong",
+                    "email": "neuman+pear@twilio.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Anant Narayanan",
+                    "email": "anant@php.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
+            "homepage": "https://github.com/firebase/php-jwt",
+            "time": "2015-07-22T18:31:08+00:00"
+        },
+        {
             "name": "swiftmailer/swiftmailer",
             "version": "v6.1.2",
             "source": {
@@ -383,6 +469,56 @@
                 "mailer"
             ],
             "time": "2018-07-13T07:04:35+00:00"
+        },
+        {
+            "name": "yii2tech/ar-softdelete",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yii2tech/ar-softdelete.git",
+                "reference": "0cc8cd22aa7fd66c1d02d76e811a55c2f0eb9be6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yii2tech/ar-softdelete/zipball/0cc8cd22aa7fd66c1d02d76e811a55c2f0eb9be6",
+                "reference": "0cc8cd22aa7fd66c1d02d76e811a55c2f0eb9be6",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "~2.0.0"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "yii2tech\\ar\\softdelete\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Klimov",
+                    "email": "klimov.paul@gmail.com"
+                }
+            ],
+            "description": "Provides support for ActiveRecord soft delete in Yii2",
+            "keywords": [
+                "active",
+                "delete",
+                "integrity",
+                "record",
+                "smart",
+                "soft",
+                "yii2"
+            ],
+            "time": "2018-05-30T11:41:32+00:00"
         },
         {
             "name": "yiisoft/yii2",

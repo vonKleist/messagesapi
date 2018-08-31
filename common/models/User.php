@@ -1,31 +1,30 @@
 <?php
 namespace common\models;
 
+use Firebase\JWT\JWT;
 use Yii;
-use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\web\Request;
+use yii\web\UnauthorizedHttpException;
 
 /**
- * User model
+ * This is the model class for table "user".
  *
- * @property integer $id
- * @property string $username
- * @property string $password_hash
- * @property string $password_reset_token
+ * @property int $id
+ * @property string $phoneNumber
+ * @property string $passwordHash
  * @property string $email
- * @property string $auth_key
- * @property integer $status
- * @property integer $created_at
- * @property integer $updated_at
- * @property string $password write-only password
+ * @property int $createdAt
+ * @property int $updatedAt
+ *
+ * @property Message[] $messages
+ * @property Message[] $messages0
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    const STATUS_DELETED = 0;
-    const STATUS_ACTIVE = 10;
-
+    use \damirka\JWT\UserTrait;
 
     /**
      * {@inheritdoc}
@@ -41,7 +40,11 @@ class User extends ActiveRecord implements IdentityInterface
     public function behaviors()
     {
         return [
-            TimestampBehavior::className(),
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'createdAt',
+                'updatedAtAttribute' => 'updatedAt',
+            ]
         ];
     }
 
@@ -51,9 +54,17 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['phoneNumber', 'passwordHash', 'email'], 'required'],
+            [['createdAt', 'updatedAt'], 'integer'],
+            [['phoneNumber', 'passwordHash', 'email'], 'string', 'max' => 255],
+            [['phoneNumber'], 'unique'],
+            [['email'], 'unique'],
         ];
+    }
+
+    protected static function getSecretKey()
+    {
+        return Yii::$app->params['JWTSecretKey'];
     }
 
     /**
@@ -61,61 +72,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
-    }
-
-    /**
-     * Finds user by password reset token
-     *
-     * @param string $token password reset token
-     * @return static|null
-     */
-    public static function findByPasswordResetToken($token)
-    {
-        if (!static::isPasswordResetTokenValid($token)) {
-            return null;
-        }
-
-        return static::findOne([
-            'password_reset_token' => $token,
-            'status' => self::STATUS_ACTIVE,
-        ]);
-    }
-
-    /**
-     * Finds out if password reset token is valid
-     *
-     * @param string $token password reset token
-     * @return bool
-     */
-    public static function isPasswordResetTokenValid($token)
-    {
-        if (empty($token)) {
-            return false;
-        }
-
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
-        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
-        return $timestamp + $expire >= time();
+        return static::findOne(['id' => $id]);
     }
 
     /**
@@ -150,7 +107,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
+        return Yii::$app->security->validatePassword($password, $this->passwordHash);
     }
 
     /**
@@ -160,30 +117,92 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function setPassword($password)
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        $this->passwordHash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
-     * Generates "remember me" authentication key
+     * Finds user by email
+     *
+     * @param string $email
+     * @return static|null
      */
-    public function generateAuthKey()
+    public static function findByEmail($email)
     {
-        $this->auth_key = Yii::$app->security->generateRandomString();
+        return static::findOne(['email' => $email]);
     }
 
     /**
-     * Generates new password reset token
+     * Generate JWT token
+     *
+     * @return string
      */
-    public function generatePasswordResetToken()
+    public function getToken()
     {
-        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+        return $this->getJWT();
     }
 
     /**
-     * Removes password reset token
+     * {@inheritdoc}
+     *
+     * Customized method for handle expiration of tokens
      */
-    public function removePasswordResetToken()
+    public static function findIdentityByAccessToken($token, $type = null)
     {
-        $this->password_reset_token = null;
+        $secret = static::getSecretKey();
+
+        // Decode token and transform it into array.
+        // Firebase\JWT\JWT throws exception if token can not be decoded
+        try {
+            $decoded = JWT::decode($token, $secret, [static::getAlgo()]);
+        } catch (\Exception $e) {
+            throw new UnauthorizedHttpException($e->getMessage());
+        }
+
+        static::$decodedToken = (array) $decoded;
+
+        // If there's no jti param - exception
+        if (!isset(static::$decodedToken['jti'])) {
+            throw new UnauthorizedHttpException('Incorrect token');
+        }
+
+        // JTI is unique identifier of user.
+        // For more details: https://tools.ietf.org/html/rfc7519#section-4.1.7
+        $id = static::$decodedToken['jti'];
+
+        return static::findByJTI($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Customized method for handle expiration of tokens
+     */
+    public function getJWT()
+    {
+        // Collect all the data
+        $secret      = static::getSecretKey();
+        $currentTime = time();
+        $request     = Yii::$app->request;
+        $hostInfo    = '';
+
+        // There is also a \yii\console\Request that doesn't have this property
+        if ($request instanceof Request) {
+            $hostInfo = $request->hostInfo;
+        }
+
+        // Merge token with presets not to miss any params in custom
+        // configuration
+        $token = array_merge([
+            'iss' => $hostInfo,
+            'aud' => $hostInfo,
+            'iat' => $currentTime,
+            'exp' => $currentTime + Yii::$app->params['tokenExpirationTime'],
+            'nbf' => $currentTime
+        ], static::getHeaderToken());
+
+        // Set up id
+        $token['jti'] = $this->getJTI();
+
+        return JWT::encode($token, $secret, static::getAlgo());
     }
 }
